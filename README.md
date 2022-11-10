@@ -1,4 +1,4 @@
-# adidas-app
+<img height='100px' src='https://upload.wikimedia.org/wikipedia/commons/2/24/Adidas_logo.png'/><br/>
 
 This project allow to manage emails in a queue. We have these modules:<br/>
 <br/>
@@ -21,6 +21,11 @@ This project allow to manage emails in a queue. We have these modules:<br/>
 <hr/>
 There is a file docker-composer for deploy this modules in a Docker. It's important server-config start before the other modules because this module has the configuratión.<br/>
 If you want to practice, you can use the admin-ui:<br/>
+<img src="https://i.ibb.co/T84tzM7/Adidas1.jpg" alt="Adidas1" border="0"></a>
+If you make members and one sale, you can start a queue. Every members will receive a email in order of priority.<br/>
+<a href="https://ibb.co/YXGZ3FS"><img src="https://i.ibb.co/DYnptHF/Email.jpg" alt="Email" border="0"></a><br/>
+It's posible to pausing and resuming the emails of sale.<br/>
+Each sale has a queue so you can make several sales at the same time.<br/>
 
 
 
