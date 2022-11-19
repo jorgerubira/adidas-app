@@ -1,0 +1,23 @@
+maven package:
+
+
+
+For Kafka:
+Show topics
+kafka-topics --list --bootstrap-server=localhost:9092
+
+
+kafka-console-consumer --bootstrap-server=localhost:9092 --topic createSale --from-beginning 
+kafka-console-consumer --bootstrap-server=localhost:9092 --topic createSale 
+
+kafka-topics --bootstrap-server=localhost:9092 --topic createSale --delete
+kafka-topics --bootstrap-server=localhost:9092 --delete --topic '.*'
+
+
+
+Update config:
+http://server:port/actuator/refresh (POST)
+http://localhost:8083/actuator/busrefresh (POST) //Para actualizar todos los elementos a la vez. Necesita Kafka o RabbitMQ
+
+Monitor:
+http://localhost:8888/monitor (POST) //Notificación a todos también. Utiliza también Kafka
