@@ -29,30 +29,30 @@ public class QueueServiceImpl implements IQueueService{
     @Autowired
     private IMemberQueueRepository queueRepository;
 
-    public void notifyOnChange(String id){
+    public void notifyOnChange(){
         try { 
-            mq.send(MQTopics.QUEUE_EVENT_ONCHANGE, id);
+            mq.send(MQTopics.GLOBAL_UPDATE, "Sale");
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Error : " + ex.getMessage());
         }
-    }       
+    }   
     
     @Override
     public void initQueue(String idSale) throws ExternalException {
         saleRepository.updateSetState(idSale, "ACTIVE");
-        notifyOnChange(idSale);
+        notifyOnChange();
     }
 
     @Override
     public void pauseQueue(String idSale) throws ExternalException {
         saleRepository.updateSetState(idSale, "PAUSE");
-        notifyOnChange(idSale);
+        notifyOnChange();
     }
 
     @Override
     public void restartQueue(String idSale) throws ExternalException {
         saleRepository.updateSetState(idSale, "ACTIVE");
-        notifyOnChange(idSale);
+        notifyOnChange();
     }
 
     public QueueDto convertDto(Map m){

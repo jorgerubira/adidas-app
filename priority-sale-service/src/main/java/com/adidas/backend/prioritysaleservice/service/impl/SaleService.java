@@ -33,13 +33,14 @@ public class SaleService implements ISaleService{
     @Autowired
     private IMQService mq;
 
-    public void notifyOnChange(String id){
+    public void notifyOnChange(){
         try { 
-            mq.send(MQTopics.SALE_EVENT_ONCHANGE, id);
+            mq.send(MQTopics.GLOBAL_UPDATE, "Sale");
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Error : " + ex.getMessage());
-        } 
-    }  
+        }
+    }
+    
     
     @Override
     public void createSale(SaleFormDto dto) throws ExternalException {
@@ -50,8 +51,9 @@ public class SaleService implements ISaleService{
                             .registrationDate(Instant.now())
                             .build();
         saleRepository.save(member);
-        notifyOnChange(member.getId());
+        notifyOnChange();
     }
+
     @Override
     public List<SaleDto> getSales() throws ExternalException {
         return saleRepository.findByOrderByRegistrationDateDesc(Pageable.ofSize(100)) //Avoid with the memory. Limit the result by default
@@ -60,8 +62,5 @@ public class SaleService implements ISaleService{
                                .map(x->mapper.map(x, SaleDto.class))
                                .collect(Collectors.toList());        
     }
-
-    
-
     
 }

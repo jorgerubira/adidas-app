@@ -1,11 +1,10 @@
 package com.adidas.backend.emailservice.service.impl;
 
-import com.adidas.backend.base.domain.dto.EmailDto;
+import com.adidas.backend.base.domain.config.MQTopics;
 import com.adidas.backend.base.domain.dto.EmailRequestDto;
-import com.adidas.backend.base.domain.dto.SaleEmailInfoDto;
 import com.adidas.backend.base.domain.exception.EmailNotSendedException;
-import com.adidas.backend.base.domain.exception.ExternalException;
 import com.adidas.backend.base.domain.exception.ResourceNotFoundException;
+import com.adidas.backend.base.infraestructure.core.IMQService;
 import com.adidas.backend.emailservice.service.ILoaderResourcesService;
 import com.adidas.backend.emailservice.service.IStatusEmailService;
 import javax.mail.MessagingException;
@@ -16,12 +15,17 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import com.adidas.backend.emailservice.service.IEmailExtensionService;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class EmailServiceImpl implements IEmailExtensionService{
 
+    @Autowired
+    private IMQService mq;    
+    
     @Value("${email.smtp.username:adidas@jorgerubira.com}")
     private String username;
     
@@ -34,6 +38,14 @@ public class EmailServiceImpl implements IEmailExtensionService{
     @Autowired
     private IStatusEmailService statusService;       
 
+    public void notifyOnChange(){
+        try { 
+            mq.send(MQTopics.GLOBAL_UPDATE, "Email");
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            log.error("Error : " + ex.getMessage());
+        }
+    }    
+    
     public String prepareEmailNotification(String name, String link) throws ResourceNotFoundException{
         String html=loader.loadResource("sale_notification");
         html = html.replaceAll("\\{\\{name}}", (name + "").replaceAll("null", ""));
@@ -65,6 +77,7 @@ public class EmailServiceImpl implements IEmailExtensionService{
             String html=prepareEmailNotification(m.getName(), s.getLink());
             sendHtml(m.getEmail(), "Adidas Club Member. New sale released : " + s.getName(), html);
             statusService.completedSendingEmail(idEmail, html);
+            notifyOnChange();
         }catch(ResourceNotFoundException | EmailNotSendedException e){
             statusService.errorSendingEmail(idEmail);
             throw e;

@@ -6,17 +6,14 @@ import com.adidas.backend.base.domain.entities.Member;
 import com.adidas.backend.base.domain.exception.ExternalException;
 import com.adidas.backend.base.domain.exception.IdNotFoundException;
 import com.adidas.backend.base.domain.services.IMemberService;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.info.Contact;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +65,7 @@ public class MemberController {
         @ApiResponse(responseCode = "405", description="Operation not available", content = { @Content})
     })    
     @PostMapping()
-    public ResponseEntity post(MemberFormDto member){
+    public ResponseEntity post(@Valid MemberFormDto member){
         try{
             log.info(String.format("Controller executed createMember({%s})", member.toString()));
             memberService.createMember(member);

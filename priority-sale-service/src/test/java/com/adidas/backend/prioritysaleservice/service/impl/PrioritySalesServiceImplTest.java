@@ -38,7 +38,7 @@ public class PrioritySalesServiceImplTest {
 
     @InjectMocks
     @Resource
-    private PrioritySalesServiceImpl instance;
+    private PrioritySalesKafkaServiceImpl instance;
     
     @Test
     public void testNotifyOnChangeQueue() throws InterruptedException, ExecutionException{

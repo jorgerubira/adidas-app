@@ -1,6 +1,7 @@
 package com.adidas.backend.emailservice.entities;
 
 import java.time.Instant;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -29,6 +30,7 @@ public class StatusEmail {
     private String idMember;
     private String email;
     private String link;
+    @Column( columnDefinition = "varchar(4000)")
     private String html;
     private String status;
     private Instant registrationDate;

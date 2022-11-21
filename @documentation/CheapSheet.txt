@@ -1,3 +1,16 @@
+Step deploy on Digital Ocean: 
+
+Deploy in local docker
+docker-compose up -d
+
+Make 
+
+
+
+
+
+
+
 maven package:
 
 

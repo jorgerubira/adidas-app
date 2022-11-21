@@ -14,12 +14,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 
 @Service
 @Slf4j
-public class MemberService implements IMemberService{
+@Profile("kafka")
+public class MemberKafkaService implements IMemberService{
 
     @Autowired
     private IMQService mq;

@@ -28,5 +28,7 @@ public class MQTopics {
     public final static String EMAIL_EVENT_ONCHANGE = "email-event-onchange";
     
     public final static String EMAIL_SEND = "email-send";
+    public final static String GLOBAL_UPDATE = "global-update";
     
+   
 }

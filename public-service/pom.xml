@@ -37,11 +37,16 @@
             <groupId>com.adidas.backend</groupId>
             <artifactId>base-infraestructure</artifactId>
             <version>${project.version}</version>
-        </dependency> 
+        </dependency>
+         <!--
         <dependency>
           <groupId>org.springframework.cloud</groupId>
           <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>        
+        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
     </dependencies>
      <build>
         <plugins>

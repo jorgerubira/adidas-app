@@ -1,5 +1,6 @@
 package com.adidas.front.admin_ui.controller;
 
+import com.adidas.backend.base.domain.config.MQTopics;
 import com.adidas.backend.base.domain.dto.EmailDto;
 import com.adidas.backend.base.domain.dto.MemberBasicInfoDto;
 import com.adidas.backend.base.domain.dto.MemberFormDto;
@@ -10,10 +11,16 @@ import com.adidas.front.admin_ui.feigns.IEmailFeign;
 import com.adidas.front.admin_ui.feigns.IMemberFeign;
 import com.adidas.front.admin_ui.feigns.IQueueFeign;
 import com.adidas.front.admin_ui.feigns.ISaleFeign;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +32,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Slf4j
 public class AdminController {
     
+    private String lastVersion;
+
     @Autowired
     private IMemberFeign members;
     
@@ -110,6 +119,21 @@ public class AdminController {
     public ResponseEntity<List<EmailDto>> listEmails(){
         return emails.getErrors();
     }
+    
+    @GetMapping("/last_version")
+    @ResponseBody
+    public String getLastVersion(){
+        return lastVersion;
+    }    
+    
+    @KafkaListener(topics = MQTopics.GLOBAL_UPDATE)
+    public String notification(String mensaje) {
+        lastVersion=UUID.randomUUID().toString();
+        log.info("---------------------- Ha habido cambios ----------------");
+        return mensaje;
+    }    
+    
+    
     
     
 }

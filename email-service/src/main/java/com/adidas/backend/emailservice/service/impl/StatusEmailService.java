@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
@@ -30,13 +31,14 @@ public class StatusEmailService implements IStatusEmailService, IEmailService{
     @Autowired
     private IStatusEmailRepository statusRepository;
     
-    public void notifyOnChange(String id){
+    public void notifyOnChange(){
         try { 
-            mq.send(MQTopics.EMAIL_EVENT_ONCHANGE, id);
+            mq.send(MQTopics.GLOBAL_UPDATE, "Email");
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Error : " + ex.getMessage());
         }
-    }      
+    }    
+    
     
     @Override
     public String initSendingEmail(String idMember, String email, String link) {
@@ -47,21 +49,22 @@ public class StatusEmailService implements IStatusEmailService, IEmailService{
         status.setStatus("SENDING");
         status.setRegistrationDate(Instant.now());
         status=statusRepository.save(status);
-        notifyOnChange(status.getId());
+        notifyOnChange();
         return status.getId();
         
     }
 
     @Override
+    @Transactional
     public void completedSendingEmail(String id, String html) {
         statusRepository.completeEmail(id, html);
-        notifyOnChange(id);
+        notifyOnChange();
     }
 
     @Override
     public void errorSendingEmail(String id) {
         statusRepository.errorEmail(id);
-        notifyOnChange(id);
+        notifyOnChange();
     }
 
     public EmailDto convertDto(Map m){
@@ -79,8 +82,5 @@ public class StatusEmailService implements IStatusEmailService, IEmailService{
                                   .map(x->convertDto(x))
                                   .collect(Collectors.toList());        
     }
-
-
-    
     
 }
