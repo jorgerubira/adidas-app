@@ -36,9 +36,9 @@ public class MemberServiceImpl implements IMemberService{
     @Autowired
     private ModelMapper mapper;
 
-    public void notifyOnChange(String id){
+    public void notifyOnChange(){
         try { 
-            mq.send(MQTopics.MEMBER_EVENT_ONCHANGE, id);
+            mq.send(MQTopics.GLOBAL_UPDATE, "Member");
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Error : " + ex.getMessage());
         }
@@ -53,7 +53,7 @@ public class MemberServiceImpl implements IMemberService{
                             .registrationDate(Instant.now())
                             .build();
         memberRepository.save(member);
-        notifyOnChange(member.getId());
+        notifyOnChange();
     }
     
     @Override
@@ -78,7 +78,7 @@ public class MemberServiceImpl implements IMemberService{
         }else{
             throw new IdNotFoundException();
         }
-        notifyOnChange(id);
+        notifyOnChange();
     }
 
     @Override
@@ -97,7 +97,7 @@ public class MemberServiceImpl implements IMemberService{
         }else{
             throw new IdNotFoundException();
         }
-        notifyOnChange(id);
+        notifyOnChange();
     }
     
 }

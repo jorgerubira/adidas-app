@@ -23,22 +23,21 @@ public class QueueServiceImpl implements IQueueInitService{
     @Autowired
     private IQueueRepository queueRepository;
     
-    public void notifyOnChange(String id){
+    public void notifyOnChange(){
         try { 
-            mq.send(MQTopics.QUEUE_EVENT_ONCHANGE, id);
-        } catch (InterruptedException | ExecutionException |TimeoutException ex) {
+            mq.send(MQTopics.GLOBAL_UPDATE, "Queue");
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Error : " + ex.getMessage());
         }
-    }    
+    }  
     
     @Override
     public void initQueue(String idSale) throws ExternalException {
         try {
             //It's very expensive to send a full table by Json. We make a table Queue from this service
             queueRepository.createQueue(idSale);
-            mq.send(MQTopics.QUEUE_STARTED, idSale);
-            notifyOnChange("");
-        } catch (InterruptedException | ExecutionException |TimeoutException ex) {
+            notifyOnChange();
+        } catch (Exception ex) {
             log.error("Error " + ex.getMessage());
         }
     }
