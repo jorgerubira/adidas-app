@@ -11,6 +11,7 @@ import com.adidas.backend.emailservice.service.IStatusEmailService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -32,13 +33,16 @@ public class StatusEmailService implements IStatusEmailService, IEmailService{
     private IStatusEmailRepository statusRepository;
     
     public void notifyOnChange(){
-        try { 
-            mq.send(MQTopics.GLOBAL_UPDATE, "Email");
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
-    }    
+        CompletableFuture.runAsync(()-> {
+            try{
+                mq.send(MQTopics.GLOBAL_UPDATE, "Email");
+            }catch(Exception ex){
+                log.error("Error : " + ex.getMessage());
+            }
+        });
+    }  
     
+   
     
     @Override
     public String initSendingEmail(String idMember, String email, String link) {

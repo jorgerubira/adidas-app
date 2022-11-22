@@ -6,6 +6,7 @@ import com.adidas.backend.base.domain.config.MQTopics;
 import com.adidas.backend.base.domain.exception.ExternalException;
 import com.adidas.backend.base.domain.services.IQueueInitService;
 import com.adidas.backend.base.infraestructure.core.IMQService;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +25,13 @@ public class QueueServiceImpl implements IQueueInitService{
     private IQueueRepository queueRepository;
     
     public void notifyOnChange(){
-        try { 
-            mq.send(MQTopics.GLOBAL_UPDATE, "Queue");
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
+        CompletableFuture.runAsync(()-> {
+            try{
+                mq.send(MQTopics.GLOBAL_UPDATE, "Queue");
+            }catch(Exception ex){
+                log.error("Error : " + ex.getMessage());
+            }
+        });
     }  
     
     @Override

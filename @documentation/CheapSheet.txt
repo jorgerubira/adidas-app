@@ -6,7 +6,12 @@ docker-compose up -d
 Make 
 
 
+Kafka Start
+zookeeper-server-start.bat ..\..\config\zookeeper.properties
+kafka-server-start.bat ..\..\config\server.properties
 
+
+docker-compose up -d --build --
 
 
 

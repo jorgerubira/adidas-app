@@ -12,6 +12,7 @@ import com.adidas.backend.prioritysaleservice.feign.IEmailFeign;
 import com.adidas.backend.prioritysaleservice.feign.IMemberFeign;
 import com.adidas.backend.prioritysaleservice.service.IPriorityService;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import org.springframework.stereotype.Service;
@@ -86,14 +87,16 @@ public class PrioritySalesFeignServiceImpl implements IPriorityService{
         List<SaleEntity> sales=saleRepository.findByState("ACTIVE");
         sales.forEach(x->sendNotifications(x.getId()));
     }
-
-    public void notifyOnChange(){
-        try { 
-            mq.send(MQTopics.GLOBAL_UPDATE, "Email");
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
-    }   
     
+    public void notifyOnChange(){
+        CompletableFuture.runAsync(()-> {
+            try{
+                mq.send(MQTopics.GLOBAL_UPDATE, "Email");
+            }catch(Exception ex){
+                log.error("Error : " + ex.getMessage());
+            }
+        });
+    }      
+
 }
 

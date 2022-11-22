@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import com.adidas.backend.emailservice.service.IEmailExtensionService;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +40,15 @@ public class EmailServiceImpl implements IEmailExtensionService{
     private IStatusEmailService statusService;       
 
     public void notifyOnChange(){
-        try { 
-            mq.send(MQTopics.GLOBAL_UPDATE, "Email");
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
-    }    
+        CompletableFuture.runAsync(()-> {
+            try{
+                mq.send(MQTopics.GLOBAL_UPDATE, "Email");
+            }catch(Exception ex){
+                log.error("Error : " + ex.getMessage());
+            }
+        });
+    }      
+
     
     public String prepareEmailNotification(String name, String link) throws ResourceNotFoundException{
         String html=loader.loadResource("sale_notification");

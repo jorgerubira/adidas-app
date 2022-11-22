@@ -10,6 +10,7 @@ import com.adidas.backend.prioritysaleservice.dao.ISaleRepository;
 import com.adidas.backend.prioritysaleservice.entities.SaleEntity;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -34,13 +35,15 @@ public class SaleService implements ISaleService{
     private IMQService mq;
 
     public void notifyOnChange(){
-        try { 
-            mq.send(MQTopics.GLOBAL_UPDATE, "Sale");
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
-    }
-    
+        CompletableFuture.runAsync(()-> {
+            try{
+                mq.send(MQTopics.GLOBAL_UPDATE, "Sale");
+            }catch(Exception ex){
+                log.error("Error : " + ex.getMessage());
+            }
+        });
+    }         
+       
     
     @Override
     public void createSale(SaleFormDto dto) throws ExternalException {

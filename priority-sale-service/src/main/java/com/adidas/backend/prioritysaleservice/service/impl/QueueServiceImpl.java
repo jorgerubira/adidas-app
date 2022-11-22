@@ -9,6 +9,7 @@ import com.adidas.backend.prioritysaleservice.dao.IMemberQueueRepository;
 import com.adidas.backend.prioritysaleservice.dao.ISaleRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -30,12 +31,14 @@ public class QueueServiceImpl implements IQueueService{
     private IMemberQueueRepository queueRepository;
 
     public void notifyOnChange(){
-        try { 
-            mq.send(MQTopics.GLOBAL_UPDATE, "Sale");
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
-    }   
+        CompletableFuture.runAsync(()-> {
+            try{
+                mq.send(MQTopics.GLOBAL_UPDATE, "Sale");
+            }catch(Exception ex){
+                log.error("Error : " + ex.getMessage());
+            }
+        });
+    }     
     
     @Override
     public void initQueue(String idSale) throws ExternalException {

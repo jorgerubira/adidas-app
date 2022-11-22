@@ -15,6 +15,7 @@ import com.adidas.backend.base.domain.services.IMemberService;
 import com.adidas.backend.base.infraestructure.core.IMQService;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -37,12 +38,15 @@ public class MemberServiceImpl implements IMemberService{
     private ModelMapper mapper;
 
     public void notifyOnChange(){
-        try { 
-            mq.send(MQTopics.GLOBAL_UPDATE, "Member");
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
-    }
+        CompletableFuture.runAsync(()-> {
+            try{
+                mq.send(MQTopics.GLOBAL_UPDATE, "Member");
+            }catch(Exception ex){
+                log.error("Error : " + ex.getMessage());
+            }
+        });
+    }  
+
     
     @Override
     public void createMember(MemberFormDto dto) throws ExternalException {
