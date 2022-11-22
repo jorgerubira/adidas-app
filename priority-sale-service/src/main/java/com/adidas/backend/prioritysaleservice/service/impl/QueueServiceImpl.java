@@ -7,6 +7,7 @@ import com.adidas.backend.base.domain.services.IQueueService;
 import com.adidas.backend.base.infraestructure.core.IMQService;
 import com.adidas.backend.prioritysaleservice.dao.IMemberQueueRepository;
 import com.adidas.backend.prioritysaleservice.dao.ISaleRepository;
+import com.adidas.backend.prioritysaleservice.feign.IQueueFeign;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +30,9 @@ public class QueueServiceImpl implements IQueueService{
 
     @Autowired
     private IMemberQueueRepository queueRepository;
+    
+    @Autowired
+    private IQueueFeign queueFeign;
 
     public void notifyOnChange(){
         CompletableFuture.runAsync(()-> {
@@ -42,6 +46,7 @@ public class QueueServiceImpl implements IQueueService{
     
     @Override
     public void initQueue(String idSale) throws ExternalException {
+        queueFeign.createQueue(idSale);
         saleRepository.updateSetState(idSale, "ACTIVE");
         notifyOnChange();
     }
