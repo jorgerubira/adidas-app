@@ -35,7 +35,9 @@ public class QueueServiceImplTest {
         verify(queueRepository).createQueue(arg.capture()); 
         assertEquals("1111", arg.getValue()); 
         
-        verify(mq, times(2)).send(any(),any());
+        ArgumentCaptor<String> arg2=ArgumentCaptor.forClass(String.class);
+        verify(mq).send(arg2.capture(), any());
+        assertEquals(MQTopics.GLOBAL_UPDATE, arg2.getValue());        
 
     }
     

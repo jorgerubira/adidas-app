@@ -146,7 +146,7 @@
                               $("#table_members").bootstrapTable('refresh');
                           },
                           error: function (er) {
-                              alert(er);
+                              
                           }
                       });
                   }
@@ -172,7 +172,7 @@
                               $("#table_sales").bootstrapTable('refresh');
                           },
                           error: function (info, er) {
-                              alert(er);
+                              
                           }
                       });
                   }
@@ -203,14 +203,11 @@
                                   autoRefresh();
                               },5000)
                           },
-                          error: function (er) {
-                              alert(er);
-                          }
                       });
                   }
                   $(document).ready(function(){
                       autoRefresh();
-                  })
+                  });
                   
 
         </script>

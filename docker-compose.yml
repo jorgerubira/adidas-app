@@ -1,6 +1,7 @@
 version: "3.5"
 
 services:
+
   mysql:  
     image: mysql:5.7
     container_name: mysql
@@ -11,27 +12,110 @@ services:
         MYSQL_ROOT_PASSWORD: 1111
     ports:
       - "3307:3306"
+    networks:
+      - netadidas
     volumes:
       - my-db:/var/lib/mysql
+
   zookeeper:
       image: wurstmeister/zookeeper
       container_name: zookeeper
       ports:
       - "2181:2181"
+      networks:
+      - netadidas
+
   kafka:
     image: wurstmeister/kafka
     container_name: kafka
     ports:
       - "9092:9092"
     environment:
-        KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+        KAFKA_ADVERTISED_HOST_NAME: kafka
         KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    networks:
+      - netadidas
   
-  zipkin:
-    image: openzipkin/zipkin
-    container_name: zipkin
+  adiclub-service:
+    image: adidas/adiclub-service-img:latest
+    container_name: adiclub-service-app
+    build:
+      context: adiclub-service
+      dockerfile: Dockerfile
+    environment:
+      - spring.profiles.active=dev
+    networks:
+      - netadidas
+    depends_on:
+      - mysql  
+      - zookeeper
+      - kafka
+
+  email-service:
+    image: adidas/email-service-img:latest
+    container_name: email-service-app
+    build:
+      context: email-service
+      dockerfile: Dockerfile
+    environment:
+      - spring.profiles.active=dev
+    networks:
+      - netadidas
+    depends_on:
+      - mysql  
+      - zookeeper
+      - kafka
+
+  priority-sale-service:
+    image: adidas/priority-sale-service-img:latest
+    container_name: priority-sale-service-app
+    build:
+      context: priority-sale-service
+      dockerfile: Dockerfile
+    environment:
+      - spring.profiles.active=dev
+    networks:
+      - netadidas
+    depends_on:
+      - mysql  
+      - zookeeper
+      - kafka
+      
+  public-service:
+    image: adidas/public-service-img:latest
+    container_name: public-service-app
+    build:
+      context: public-service
+      dockerfile: Dockerfile
+    environment:
+      - spring.profiles.active=dev
+    networks:
+      - netadidas
+    depends_on:
+      - mysql  
+      - zookeeper
+      - kafka
+
+  admin-ui:
+    image: adidas/admin-ui-img:latest
+    container_name: admin-ui-app
+    build:
+      context: admin-ui
+      dockerfile: Dockerfile
     ports:
-      - "9411:9411"  
+      - "80:80"
+    environment:
+      - spring.profiles.active=dev
+    networks:
+      - netadidas
+    depends_on:
+      - mysql  
+      - zookeeper
+      - kafka
+
+networks:
+    netadidas:
+        name: netadidas-net
 
 volumes:
   my-db:

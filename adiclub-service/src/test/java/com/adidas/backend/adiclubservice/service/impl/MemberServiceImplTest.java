@@ -56,7 +56,7 @@ public class MemberServiceImplTest {
         
         ArgumentCaptor<String> arg2=ArgumentCaptor.forClass(String.class);
         verify(mq).send(arg2.capture(), any());
-        assertEquals(MQTopics.MEMBER_EVENT_ONCHANGE, arg2.getValue());
+        assertEquals(MQTopics.GLOBAL_UPDATE, arg2.getValue());
 
     }
 
