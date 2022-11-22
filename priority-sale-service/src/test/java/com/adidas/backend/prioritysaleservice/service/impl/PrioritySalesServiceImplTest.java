@@ -40,34 +40,5 @@ public class PrioritySalesServiceImplTest {
     @Resource
     private PrioritySalesKafkaServiceImpl instance;
     
-    @Test
-    public void testNotifyOnChangeQueue() throws InterruptedException, ExecutionException{
-        try {
-            instance.notifyOnChangeQueue("1111");
-            ArgumentCaptor<String> arg1=ArgumentCaptor.forClass(String.class);
-            ArgumentCaptor<Object> arg2=ArgumentCaptor.forClass(Object.class);
-            verify(mq, times(1)).send(arg1.capture(), arg2.capture());
-            assertEquals(MQTopics.QUEUE_EVENT_ONCHANGE, arg1.getValue());
-            assertEquals("1111", arg2.getValue());
-        } catch (TimeoutException ex) {
-            Logger.getLogger(PrioritySalesServiceImplTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Test
-    public void testNotifyOnChangeSale() throws InterruptedException, ExecutionException{
-        try {
-            instance.notifyOnChangeSale("1111");
-            ArgumentCaptor<String> arg1=ArgumentCaptor.forClass(String.class);
-            ArgumentCaptor<Object> arg2=ArgumentCaptor.forClass(Object.class);
-            verify(mq, times(1)).send(arg1.capture(), arg2.capture());
-            assertEquals(MQTopics.SALE_EVENT_ONCHANGE, arg1.getValue());
-            assertEquals("1111", arg2.getValue());
-            
-        } catch (TimeoutException ex) {
-            Logger.getLogger(PrioritySalesServiceImplTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     
 }

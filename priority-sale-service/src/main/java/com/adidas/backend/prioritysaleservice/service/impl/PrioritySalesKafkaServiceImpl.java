@@ -12,6 +12,7 @@ import com.adidas.backend.prioritysaleservice.entities.MemberQueueEntity;
 import com.adidas.backend.prioritysaleservice.entities.SaleEntity;
 import com.adidas.backend.prioritysaleservice.service.IPriorityService;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.stereotype.Service;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -45,36 +46,30 @@ public class PrioritySalesKafkaServiceImpl implements IPriorityService{
     @Autowired
     private ModelMapper mapper;
 
-    public void notifyOnChangeQueue(String id){
-        try { 
-            mq.send(MQTopics.QUEUE_EVENT_ONCHANGE, id);
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
-    }    
+    public void notifyOnChange(){
+        CompletableFuture.runAsync(()-> {
+            try{
+                mq.send(MQTopics.GLOBAL_UPDATE, "All");
+            }catch(Exception ex){
+                log.error("Error : " + ex.getMessage());
+            }
+        });
+    }      
 
-    public void notifyOnChangeSale(String id){
-        try { 
-            mq.send(MQTopics.SALE_EVENT_ONCHANGE, id);
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Error : " + ex.getMessage());
-        }
-    }
-    
     @Override
     @Transactional
     public void sendNotifications(String idSale) {
         var optSale=saleRepository.findById(idSale);
         if (optSale.isEmpty()){ //The sale is deleted
             queueRepository.deleteByIdSale(idSale);
-            notifyOnChangeSale(idSale);
+            notifyOnChange();
             return; //Don't send emails.
         }
         var sale=mapper.map(optSale.get(), SaleDto.class);
         List<MemberQueueEntity> members=queueRepository.findByIdSaleOrderByPointsDescRegistrationDate(idSale, Pageable.ofSize(emailsByMinute));
         if (members.size()==0){ //All emails are sended. It's completed
             saleRepository.updateSetState(idSale, "COMPLETED"); 
-            notifyOnChangeSale(idSale);
+            notifyOnChange();
             return;
         }
         members.forEach(m->{
@@ -86,7 +81,7 @@ public class PrioritySalesKafkaServiceImpl implements IPriorityService{
                         .sale(sale)
                         .build());
                 queueRepository.deleteById(m.getId()); //Delete of list.
-                notifyOnChangeQueue(m.getId());
+                notifyOnChange();
             } catch (InterruptedException | ExecutionException ex) {
                 log.error("Error : " + ex.getMessage());
             } catch (Exception e){
